@@ -1,0 +1,17 @@
+# Virtual Environment
+venv/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Model Cache
+model_cache/
+
+# Environment variables
+.env*
+
+# Generated files
+indexed_titles.txt

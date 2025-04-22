@@ -1,0 +1,10 @@
+fastapi
+litellm
+rapidfuzz
+sentence-transformers
+dotenv
+pymilvus
+datasets
+tqdm
+pandas
+uvicorn[standard]

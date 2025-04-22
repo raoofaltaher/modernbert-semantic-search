@@ -1,0 +1,12 @@
+# Environment variables (if any at root level)
+*.env
+
+# Milvus / Docker related
+volumes/
+embedEtcd.yaml
+user.yaml
+# standalone_embed.sh # Optional: uncomment if you don't want to commit the script
+
+# OS generated files
+.DS_Store
+Thumbs.db
