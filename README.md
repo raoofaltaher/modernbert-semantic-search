@@ -9,6 +9,7 @@
 This repository contains a full-stack application designed for efficient **semantic search** across a collection of documents, specifically demonstrated with machine learning research papers from ArXiv. It allows users to find documents based on conceptual similarity and contextual relevance, going beyond simple keyword matching.
 
 **What problem does it solve?**
+
 Traditional keyword search often fails to capture the user's intent or find documents related by meaning. This project addresses that by implementing semantic search, leveraging state-of-the-art vector embeddings and a specialized vector database for fast, relevant retrieval.
 
 **Key Technologies:**
