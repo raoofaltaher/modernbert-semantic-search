@@ -18,11 +18,14 @@ const ResultsList: React.FC<ResultsListProps> = ({ results, loading }) => { // D
 						hoverable
 						style={{
 							width: '100%',
-							boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // Box shadow for the card
+							boxShadow: '0 2px 8px rgba(0, 0, 0, 0.09)', // Refined shadow
 							marginBottom: '16px', // Spacing between cards
+							// backgroundColor: '#ffffff', // Use theme default or customize if needed
+							borderRadius: '8px', // Slightly more rounded, or use theme token
+							transition: 'box-shadow 0.3s ease, transform 0.3s ease', // Add transition
 						}}
 					>
-						<div>
+						<div style={{ padding: '12px 24px' }}> {/* Add some internal padding */}
 							<Typography.Title level={5} style={{ fontWeight: 'bold' }}>
 								{item.title}
 							</Typography.Title>

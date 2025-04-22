@@ -1,68 +1,85 @@
 # Semantic Document Search with ModernBERT and Milvus
 
+[![Python Version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/) [![Node.js Version](https://img.shields.io/badge/node.js-16+-green.svg)](https://nodejs.org/) [![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat)](https://www.docker.com/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat)](https://fastapi.tiangolo.com/) [![React](https://img.shields.io/badge/React-61DAFB?style=flat)](https://react.dev/) [![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat)](https://vitejs.dev/) [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat)](https://www.typescriptlang.org/) [![Ant Design](https://img.shields.io/badge/Ant%20Design-0170FE?style=flat)](https://ant.design/)
+[![Milvus](https://img.shields.io/badge/Milvus-4FC8E0?style=flat)](https://milvus.io/) [![Sentence Transformers](https://img.shields.io/badge/Sentence%20Transformers-FFD700?style=flat)](https://www.sbert.net/) [![Rapidfuzz](https://img.shields.io/badge/Rapidfuzz-lightgrey?style=flat)](https://github.com/maxbachmann/RapidFuzz)
+
 ## Overview
 
-This repository contains a full-stack application designed for efficient semantic search across a collection of documents, specifically demonstrated with machine learning research papers from ArXiv. It allows users to find documents based on conceptual similarity and contextual relevance, going beyond simple keyword matching.
+This repository contains a full-stack application designed for efficient **semantic search** across a collection of documents, specifically demonstrated with machine learning research papers from ArXiv. It allows users to find documents based on conceptual similarity and contextual relevance, going beyond simple keyword matching.
 
 **What problem does it solve?**
-Traditional keyword search often fails to capture the user's intent or find documents related by meaning. This project addresses that by implementing semantic search, leveraging vector embeddings and a specialized database.
+Traditional keyword search often fails to capture the user's intent or find documents related by meaning. This project addresses that by implementing semantic search, leveraging state-of-the-art vector embeddings and a specialized vector database for fast, relevant retrieval.
 
-**What technologies does it use?**
--   **Embedding Model:** `nomic-ai/modernbert-embed-base` (via `sentence-transformers`) for generating meaningful vector representations (embeddings) of documents and queries. Configuration is managed via `backend/.env`.
--   **Vector Database:** Milvus for storing, indexing, and efficiently searching high-dimensional document embeddings. Configuration (URI) is managed via `backend/.env`.
--   **Backend:** FastAPI (Python) to handle API requests, interact with Milvus, and serve search results. Includes explicit collection loading on startup and improved error handling.
--   **Frontend:** Vite + React (TypeScript) with Ant Design for a user-friendly interface. Features loading indicators, debounced suggestions, and displays abstracts. API endpoint configured via `frontend/.env`.
--   **Suggestions:** `rapidfuzz` for providing type-ahead query suggestions based on titles indexed during data ingestion (`backend/indexed_titles.txt`).
--   **Containerization:** Docker to run the Milvus vector database instance easily.
--   **Configuration:** `python-dotenv` (backend) and Vite env variables (frontend) for managing settings.
+**Key Technologies:**
+-   **Embedding Model:** `nomic-ai/modernbert-embed-base` (via `sentence-transformers`) for generating meaningful vector representations.
+-   **Vector Database:** Milvus for storing, indexing, and efficiently searching high-dimensional embeddings.
+-   **Backend:** FastAPI (Python) API with improved error handling and configuration.
+-   **Frontend:** Vite + React (TypeScript) with Ant Design, featuring theme customization, loading states, and enhanced UI components.
+-   **Suggestions:** `rapidfuzz` for type-ahead suggestions based on indexed document titles.
+-   **Containerization:** Docker for running the Milvus instance.
+-   **Configuration:** `.env` files for managing backend and frontend settings.
 
-## Why This Approach?
+---
 
--   **Semantic Understanding:** Goes beyond keywords to understand the *meaning* behind queries and documents, leading to more relevant results.
--   **ModernBERT:** Chosen for its balance of performance and efficiency. It generates high-quality, context-aware embeddings suitable for semantic tasks while being computationally less demanding than some larger models.
--   **Milvus:** A purpose-built vector database optimized for storing and querying billions of high-dimensional vectors with low latency, making it ideal for scalable semantic search applications.
--   **FastAPI & React/Vite:** Modern, performant frameworks for building the backend API and frontend UI.
+## Features & Recent Improvements ✨
 
-## How It Works (Working Logic)
+*   **Core Functionality:**
+    *   **Semantic Search:** Finds documents based on meaning and context, not just keywords.
+    *   **High-Quality Embeddings:** Utilizes `nomic-ai/modernbert-embed-base` via `sentence-transformers` for effective document representation.
+    *   **Scalable Vector Storage:** Leverages Milvus for efficient storage, indexing (AUTOINDEX, COSINE similarity), and retrieval of vector embeddings.
+*   **Backend & Infrastructure:**
+    *   **FastAPI Framework:** Robust and modern Python API.
+    *   **Dockerized Milvus:** Easy setup and deployment of the vector database using Docker.
+    *   **Robust Startup:** Explicit Milvus collection loading on API server startup (`lifespan` manager).
+    *   **Optimized Data Ingestion:** Memory-efficient batch processing for embedding generation and insertion (`backend/ingest_data.py`).
+    *   **Configuration Management:** Centralized settings via `.env` files (Milvus URI, model name, collection name).
+    *   **Improved Error Handling:** Specific HTTP status codes for backend errors (e.g., 503 for Milvus issues).
+    *   **Clean Codebase:** Well-structured `.gitignore` files for managing version control.
+*   **Frontend & User Experience:**
+    *   **Modern UI:** Built with React, Vite, TypeScript, and Ant Design.
+    *   **Theme Customization:** Base theme configured with custom primary color and border radius.
+    *   **Dark Mode:** Toggle between light and dark themes (persisted in `localStorage`).
+    *   **Enhanced Results:** Displays document titles and expandable abstracts.
+    *   **Dynamic Suggestions:** Type-ahead suggestions based on indexed document titles using `rapidfuzz`.
+    *   **Improved Interactivity:** Loading indicators (`Spin`) during searches/suggestions and debounced suggestion fetching.
+    *   **User Feedback:** Clear error messages for search failures (Ant Design `message`).
+    *   **Refined Styling:** Custom 'Inter' font, improved layout spacing, constrained content width, and styled components (Header, Cards).
+    *   **Custom Branding:** Updated browser tab title and footer text.
+
+---
+
+## How It Works
 
 The application operates in two main phases: Data Ingestion and Querying.
 
 1.  **Data Ingestion (`backend/ingest_data.py`):**
-    *   **Configuration:** Reads Milvus URI, collection name, and embedding model name from `backend/.env`.
-    *   **Load Data:** Fetches documents (demonstrated with `CShorten/ML-ArXiv-Papers`).
-    *   **Generate Embeddings:** Uses the configured ModernBERT model to convert document text (title + abstract) into vector embeddings (768 dimensions). This process is batched for efficiency.
-    *   **Connect to Milvus:** Establishes a connection using the configured URI.
-    *   **Create Collection:** Defines and creates the configured collection in Milvus with a schema including fields for `id` (auto-generated primary key), `title`, `abstract`, the combined `text`, and the `dense_vector`. An `AUTOINDEX` optimized for `COSINE` similarity is applied to the vector field. Existing collections with the same name are dropped first.
-    *   **Insert Data:** Inserts document metadata (`title`, `abstract`, `text`) and embeddings into Milvus. This is done **without loading the entire dataset into memory at once**, processing directly from the Hugging Face dataset batches for better memory efficiency.
-    *   **Flush & Load:** Ensures data is persisted (`flush`) and loaded into memory (`load_collection`) within Milvus.
-    *   **Generate Suggestion File:** Extracts all document titles and saves them to `backend/indexed_titles.txt` for use in frontend suggestions.
-    *   *Note: This script needs to be run only once initially or whenever the source data changes.*
+    *   Reads configuration (`.env`).
+    *   Loads source documents (e.g., ArXiv papers dataset).
+    *   Generates vector embeddings for documents using ModernBERT (batched).
+    *   Connects to Milvus.
+    *   Creates (or drops/recreates) the Milvus collection (`modernbert_search` by default) with fields: `id`, `title`, `abstract`, `text`, `dense_vector`. Applies an `AUTOINDEX`.
+    *   Inserts document metadata and embeddings in batches (memory-efficient).
+    *   Flushes data to ensure persistence and loads the collection.
+    *   Generates `indexed_titles.txt` for suggestions.
 
 2.  **Querying (Backend + Frontend Interaction):**
-    *   **Backend Startup:** Reads configuration from `.env`. Uses FastAPI's `lifespan` manager to explicitly load the configured Milvus collection into memory, ensuring readiness for queries. Loads suggestion titles from `indexed_titles.txt`.
-    *   **User Query (Frontend):** The user types a query into the search bar (`http://localhost:5173`). The frontend reads the backend API URL from `frontend/.env`.
-    *   **Suggestions (Frontend -> Backend):** As the user types, the frontend sends partial queries (debounced to limit frequency) to the `/suggestions` endpoint. The backend uses `rapidfuzz` to find similar titles from the loaded `indexed_titles.txt` and returns suggestions. A loading indicator is shown in the search bar during the fetch. Errors are handled gracefully.
-    *   **Search Request (Frontend -> Backend):** When the user submits a full query, the frontend sends it to the `/search` endpoint. A loading indicator is shown over the results area.
-    *   **Query Embedding (Backend):** The backend receives the query, prepends `search_query:`, and uses the ModernBERT model to generate the query embedding.
-    *   **Milvus Search (Backend):** The backend searches the configured Milvus collection for the `k` most similar document embeddings (cosine similarity), requesting the `title` and `abstract` fields. Milvus exceptions are caught, and appropriate HTTP errors (503) are returned. Other unexpected errors return a 500 status.
-    *   **Process Results (Backend):** The backend extracts the `title`, `abstract`, and `score` for each matching document.
-    *   **Display Results (Frontend):** The backend sends the results back. The frontend displays them in a list, showing the title, relevance score, and the abstract (with an expandable ellipsis). Search errors are displayed to the user via Ant Design messages.
+    *   **Backend Startup:** Reads config, loads the embedding model, loads the Milvus collection via `lifespan`, loads suggestion titles.
+    *   **Frontend Interaction:**
+        *   User types query -> Debounced request to `/suggestions`.
+        *   Backend uses `rapidfuzz` on `indexed_titles.txt` -> Returns suggestions.
+        *   User submits search -> Request to `/search`.
+    *   **Backend Processing:**
+        *   Generates query embedding using ModernBERT (with `search_query:` prefix).
+        *   Searches Milvus collection (using `COSINE` similarity) for top `k` matches, retrieving `title` and `abstract`.
+        *   Handles Milvus/other exceptions, returning appropriate HTTP status codes.
+        *   Formats results (`title`, `abstract`, `score`).
+    *   **Frontend Display:**
+        *   Receives results or error message.
+        *   Displays results in styled cards, including expandable abstracts.
+        *   Shows loading states and error notifications.
 
-
-## Features & Improvements
-
--   Semantic search for documents based on meaning.
--   Fast and scalable search powered by Milvus.
--   High-quality embeddings generated by ModernBERT.
--   User-friendly web interface built with React, Vite, and Ant Design.
--   **Improved Suggestions:** Type-ahead query suggestions based on actual indexed document titles.
--   **Enhanced Results:** Search results now include paper abstracts, displayed with an expandable view.
--   **Improved UX:** Loading indicators provide visual feedback during search and suggestion fetching. Debounced suggestion input reduces unnecessary API calls. User-friendly error messages are displayed for search failures.
--   **Robust Backend:** Explicit Milvus collection loading on startup. Improved error handling with specific HTTP status codes for Milvus or server issues.
--   **Optimized Ingestion:** Data ingestion script (`ingest_data.py`) is more memory-efficient, processing data in batches.
--   **Configuration Management:** Backend and frontend settings (Milvus URI, API URL, model names, etc.) are managed via `.env` files.
--   **Clean Git History:** Updated `.gitignore` files (root, backend, frontend) to exclude generated files, caches, dependencies, and environment files.
--   Easy setup using Docker for the vector database.
+---
 
 ## Project Structure
 
@@ -86,9 +103,18 @@ The application operates in two main phases: Data Ingestion and Querying.
 │   ├── node_modules/     # Node.js dependencies (GITIGNORED)
 │   ├── dist/             # Build output (GITIGNORED)
 │   ├── public/
+│   │   └── vite.svg      # Default favicon
 │   ├── src/              # Frontend source code
+│   │   ├── assets/
+│   │   ├── components/   # React components (SearchBar, ResultsList)
+│   │   ├── context/      # React contexts (ThemeContext)
+│   │   ├── App.css
+│   │   ├── App.tsx       # Main application component
+│   │   ├── index.css     # Global styles
+│   │   ├── main.tsx      # Application entry point
+│   │   └── vite-env.d.ts
 │   ├── eslint.config.js
-│   ├── index.html
+│   ├── index.html        # Main HTML file
 │   ├── package.json
 │   ├── package-lock.json
 │   ├── README.md         # Frontend specific README (if any)
@@ -99,7 +125,8 @@ The application operates in two main phases: Data Ingestion and Querying.
 ├── volumes/              # Docker volume for Milvus data persistence (GITIGNORED)
 │   └── milvus/
 ├── .gitignore            # Root Git Ignore Rules
-├── IMPROVEMENT_PLAN.md   # Development improvement plan (optional)
+├── FRONTEND_IMPROVEMENT_PLAN.md # Development plan (optional)
+├── IMPROVEMENT_PLAN.md   # Development plan (optional)
 ├── README.md             # This file
 ├── standalone_embed.sh   # Original Milvus setup script (optional)
 ├── system_design.png     # Architecture diagram image
@@ -107,59 +134,70 @@ The application operates in two main phases: Data Ingestion and Querying.
 └── user.yaml             # Milvus configuration file (GITIGNORED)
 ```
 
+---
+
 ## Prerequisites
 
 Ensure you have the following installed:
 
--   **Python:** 3.10+ (check with `python --version`)
--   **Node.js:** 16+ (check with `node --version`)
--   **Docker:** Latest version recommended (check with `docker --version`). Ensure the Docker daemon is running.
+-   **Python:** 3.10+ (`python --version`)
+-   **Node.js:** 16+ (`node --version`)
+-   **Docker:** Latest version recommended (`docker --version`). Ensure the Docker daemon is running.
+-   **Git:** For cloning and version control.
+
+---
 
 ## Getting Started (Setup and Running)
 
 1.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/raoofaltaher/modernbert-semantic-search.git # Replace with actual URL
+    git clone https://github.com/raoofaltaher/modernbert-semantic-search.git # Use your repo URL
     cd modernbert-semantic-search
     ```
 
-2.  **Start Milvus:**
-    Run the following command in your terminal from the project root directory. This command starts Milvus in a Docker container. *Ensure the absolute paths in the `-v` arguments match your project location.*
+2.  **Configure Environment:**
+    *   **Backend:** Copy `backend/.env.example` to `backend/.env` (or create it) and verify/adjust settings like `MILVUS_URI`, `COLLECTION_NAME`, `EMBEDDING_MODEL`.
+    *   **Frontend:** Copy `frontend/.env.example` to `frontend/.env` (or create it) and verify/adjust `VITE_API_BASE_URL`.
+
+3.  **Start Milvus:**
+    Run the following command from the project root. *Ensure the absolute paths in the `-v` arguments match your project location.*
     ```bash
     # Make sure Docker Desktop is running!
-    # Replace 'PATH' below if your project path is different
-    docker run -d --name milvus-standalone --security-opt seccomp:unconfined -e ETCD_USE_EMBED=true -e ETCD_DATA_DIR=/var/lib/milvus/etcd -e ETCD_CONFIG_PATH=/milvus/configs/embedEtcd.yaml -e COMMON_STORAGETYPE=local -v 'PATH'/modernbert-semantic-search//volumes/milvus:/var/lib/milvus -v 'PATH'/modernbert-semantic-search/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml -v 'PATH'/modernbert-semantic-search/user.yaml:/milvus/configs/user.yaml -p 19530:19530 -p 9091:9091 -p 2379:2379 --health-cmd="curl -f http://localhost:9091/healthz" --health-interval=30s --health-start-period=90s --health-timeout=20s --health-retries=3 milvusdb/milvus:v2.5.10 milvus run standalone
+    # Replace 'PATH' below with your project path
+    docker run -d --name milvus-standalone --security-opt seccomp:unconfined -e ETCD_USE_EMBED=true -e ETCD_DATA_DIR=/var/lib/milvus/etcd -e ETCD_CONFIG_PATH=/milvus/configs/embedEtcd.yaml -e COMMON_STORAGETYPE=local -v PATH'/modernbert-semantic-search/volumes/milvus:/var/lib/milvus -v PATH'/modernbert-semantic-search/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml -v d:/A+Code_Projects/modernbert-semantic-search/user.yaml:/milvus/configs/user.yaml -p 19530:19530 -p 9091:9091 -p 2379:2379 --health-cmd="curl -f http://localhost:9091/healthz" --health-interval=30s --health-start-period=90s --health-timeout=20s --health-retries=3 milvusdb/milvus:v2.5.10 milvus run standalone
     ```
-    You can check if the container is running with `docker ps`.
+    Check status: `docker ps`
 
-3.  **Backend Setup:**
-    *   Navigate to the backend directory: `cd backend`
-    *   Create `.env` file (if it doesn't exist) and configure variables (see `backend/.env.example` or Step 1.2 in the improvement plan). *Ensure `MILVUS_URI` matches the running Milvus instance.*
-    *   Create a Python virtual environment: `python -m venv venv`
-    *   Activate the virtual environment (e.g., `.\venv\Scripts\Activate.ps1` on PowerShell).
-    *   Install dependencies: `pip install -r requirements.txt`
-    *   **Run Data Ingestion (IMPORTANT: Run Once):** `python ingest_data.py` (Wait for completion).
-    *   Start the FastAPI server: `uvicorn main:app --host 0.0.0.0 --port 8050 --reload` (API at `http://localhost:8050`).
+4.  **Backend Setup:**
+    *   `cd backend`
+    *   `python -m venv venv`
+    *   Activate environment (e.g., `.\venv\Scripts\Activate.ps1` on PowerShell)
+    *   `pip install -r requirements.txt`
+    *   **Run Data Ingestion (Run Once):** `python ingest_data.py` (Wait for completion and title file generation).
+    *   Start Server: `uvicorn main:app --host 0.0.0.0 --port 8050 --reload` (API at `http://localhost:8050`).
 
-4.  **Frontend Setup:**
+5.  **Frontend Setup:**
     *   Open a **new terminal**.
-    *   Navigate to the frontend directory: `cd frontend`
-    *   Create `.env` file (if it doesn't exist) and configure `VITE_API_BASE_URL=http://localhost:8050`.
-    *   Install dependencies: `npm install`
-    *   Start the Vite development server: `npm run dev` (Check terminal for URL, likely `http://localhost:5173`).
+    *   `cd frontend`
+    *   `npm install`
+    *   Start Dev Server: `npm run dev` (Check terminal for URL, likely `http://localhost:5173`).
 
-5.  **Access the Application:**
-    Open your web browser to the frontend URL (e.g., `http://localhost:5173`).
+6.  **Access App:** Open the frontend URL (e.g., `http://localhost:5173`) in your browser.
+
+---
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+---
 
 ## Acknowledgments
 
--   **Mehdi Allahyari** and **twosetai** for the original fullstack project and sharing the knowledge: [GitHub](https://github.com/mallahyari/modernbert-semantic-search) , [GitHub](https://github.com/mallahyari/twosetai)
--   **ModernBERT** for semantic embeddings: [Hugging Face ModernBERT Blog](https://huggingface.co/blog/modernbert)
--   **Milvus** for vector database: [Milvus Documentation](https://milvus.io/docs)
+-   **ModernBERT:** [Hugging Face ModernBERT Blog](https://huggingface.co/blog/modernbert)
+-   **Milvus:** [Milvus Documentation](https://milvus.io/docs)
 -   **Sentence Transformers:** [sbert.net](https://www.sbert.net/)
 -   **FastAPI:** [fastapi.tiangolo.com](https://fastapi.tiangolo.com/)
 -   **React + Vite:** [react.dev](https://react.dev/), [vitejs.dev](https://vitejs.dev/)
+-   **Ant Design:** [ant.design](https://ant.design/)
+-   **Rapidfuzz:** [github.com/maxbachmann/RapidFuzz](https://github.com/maxbachmann/RapidFuzz)
