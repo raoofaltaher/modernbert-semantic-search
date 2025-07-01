@@ -11,5 +11,10 @@ user.yaml
 .DS_Store
 Thumbs.db
 
-cline_docs/
-# Documentation build artifacts
+# Python cache files
+__pycache__/
+*.py[cod]
+.mypy_cache/
+
+# report files
+PROJECT_DEVELOPMENT_REPORT.md

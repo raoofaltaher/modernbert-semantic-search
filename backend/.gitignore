@@ -18,5 +18,6 @@ indexed_titles.txt
 
 
 
-cline_docs/
-# Documentation build artifacts
+# Python cache files
+__pycache__/
+*.py[cod]
