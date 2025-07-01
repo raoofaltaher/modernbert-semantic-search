@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+
+
+cline_docs/
+# Documentation build artifacts

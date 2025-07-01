@@ -15,3 +15,8 @@ model_cache/
 
 # Generated files
 indexed_titles.txt
+
+
+
+cline_docs/
+# Documentation build artifacts
